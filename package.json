@@ -1,0 +1,54 @@
+{
+  "name": "escape-room",
+  "version": "1.0.0",
+  "description": "Escape Room Spiel",
+  "main": "main.js",
+  "homepage": "./",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build-win": "electron-builder --win --publish never",
+    "build-all": "electron-builder -mwl"
+  },
+  "build": {
+    "appId": "com.escape-room.app",
+    "productName": "Escape Room",
+    "directories": {
+      "buildResources": "assets"
+    },
+    "files": [
+      "main.js",
+      "index.html",
+      "mission.html",
+      "missions-config.js",
+      "mission-engine.js",
+      "style.css"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "devDependencies": {
+    "electron": "latest",
+    "electron-builder": "latest",
+    "electron-is-dev": "latest"
+  }
+}

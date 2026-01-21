@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mission - Escape Room</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+  <style>
+    /* === MODAL STYLES === */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      backdrop-filter: blur(5px);
+    }
+    .modal-content {
+      background: #1a1a1a;
+      border: 2px solid #ff4500;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(255, 69, 0, 0.5);
+      max-width: 400px;
+      width: 80%;
+      animation: fadeIn 0.3s ease-out;
+    }
+    .modal-message {
+      font-size: 1.2rem;
+      color: #e0e0e0;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+    .modal-content.victory {
+      border-color: #00ff00;
+      box-shadow: 0 0 40px rgba(0, 255, 0, 0.5);
+    }
+    .modal-content.victory button {
+      background: #006400;
+      box-shadow: 0 0 8px #00ff00;
+    }
+    .modal-content.victory button:hover {
+      background: #00ff00;
+      color: #000;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* === BACK TO INDEX BUTTON === */
+    .back-to-menu {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 69, 0, 0.8);
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      z-index: 1999;
+      transition: all 0.3s;
+      font-size: 0.9rem;
+    }
+    .back-to-menu:hover {
+      background: #ff4500;
+      box-shadow: 0 0 15px #ff4500;
+    }
+  </style>
+</head>
+<body>
+  <!-- Back to Menu Button -->
+  <button class="back-to-menu" onclick="backToMenu()" title="Zurück zum Menü">← MENÜ</button>
+
+  <!-- Fullscreen Button -->
+  <button id="fullscreenBtn" title="Vollbild">⛶</button>
+
+  <!-- Custom Modal for Alerts -->
+  <div id="customModal" class="modal-overlay">
+    <div id="modalContent" class="modal-content">
+      <div id="modalMessage" class="modal-message"></div>
+      <button id="modalOkBtn">OK</button>
+    </div>
+  </div>
+
+  <!-- Main Game Container -->
+  <div class="container" id="mainContainer">
+    <div id="timer" class="glitch">10:00</div>
+
+    <button id="startBtn">START</button>
+    <button id="helpBtn" class="help-btn" style="display: none">Hinweis</button>
+
+    <div id="warning" class="hint-warning" style="display: none">
+      <div id="warningText" class="hint-text"></div>
+      <button id="confirmHint">Hinweis</button>
+      <button id="cancelHint">Abbrechen</button>
+    </div>
+
+    <div id="loadingScreen" style="text-align: center; padding: 50px; display: none;">
+      <div style="font-size: 1.5rem; color: #ff4500; margin-bottom: 20px;">⏳ MISSION WIRD GELADEN...</div>
+      <div id="loadingStatus" style="color: #ccc; font-size: 0.9rem;"></div>
+    </div>
+
+    <div id="dynamicHintsWrapper"></div>
+    <div id="gamePhasesWrapper"></div>
+  </div>
+
+  <!-- Load missions config BEFORE engine -->
+  <script src="missions-config.js"></script>
+  <script src="mission-engine.js"></script>
+  <script>
+    // === MISSION LAUNCHER - USE MISSIONS_DATA ===
+    
+    console.log('🚀 mission.html loaded');
+    console.log('📍 Current URL:', window.location.href);
+
+    function updateStatus(message) {
+      const status = document.getElementById('loadingStatus');
+      console.log('📌 STATUS:', message);
+      if (status) status.textContent = message;
+    }
+
+    function getMissionId() {
+      const params = new URLSearchParams(window.location.search);
+      let missionId = params.get('id');
+      console.log('🎯 URL param id:', missionId);
+      
+      if (!missionId) {
+        missionId = localStorage.getItem('currentMissionId') || '0';
+        console.log('🎯 localStorage id:', missionId);
+      }
+      return missionId.toString();
+    }
+
+    function checkDOMElements() {
+      console.log('\n🔍 Checking DOM elements...');
+      const requiredElements = [
+        'dynamicHintsWrapper',
+        'gamePhasesWrapper',
+        'startBtn',
+        'helpBtn',
+        'warning',
+        'mainContainer',
+        'timer',
+        'customModal',
+        'modalMessage',
+        'modalOkBtn',
+        'fullscreenBtn',
+        'warningText',
+        'confirmHint',
+        'cancelHint',
+        'loadingScreen',
+        'loadingStatus'
+      ];
+      
+      let missingElements = [];
+      requiredElements.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          console.log(`   ✓ ${id}`);
+        } else {
+          console.error(`   ✗ ${id} MISSING!`);
+          missingElements.push(id);
+        }
+      });
+      
+      return missingElements;
+    }
+
+    function showError(message) {
+      console.error('❌ ERROR:', message);
+      const modal = document.getElementById('customModal');
+      const modalMessage = document.getElementById('modalMessage');
+      const modalContent = document.getElementById('modalContent');
+      const loading = document.getElementById('loadingScreen');
+      
+      if (loading) loading.style.display = 'none';
+      
+      if (modalMessage) modalMessage.textContent = message;
+      if (modalContent) modalContent.classList.remove('victory');
+      if (modal) modal.style.display = 'flex';
+      
+      const okBtn = document.getElementById('modalOkBtn');
+      if (okBtn) okBtn.onclick = backToMenu;
+    }
+
+    function backToMenu() {
+      console.log('↩️  Returning to menu...');
+      localStorage.removeItem('currentMissionId');
+      window.location.href = 'index.html';
+    }
+
+    function loadMission() {
+      try {
+        console.log('\n═══════════════════════════════════════');
+        console.log('START: loadMission()');
+        console.log('═══════════════════════════════════════');
+        
+        const loading = document.getElementById('loadingScreen');
+        if (loading) loading.style.display = 'block';
+        
+        // Check DOM
+        const missing = checkDOMElements();
+        if (missing.length > 0) {
+          throw new Error(`Missing DOM elements: ${missing.join(', ')}`);
+        }
+        
+        const missionId = getMissionId();
+        updateStatus(`✓ Mission ID: ${missionId}`);
+        
+        // Check if MISSIONS_DATA is loaded
+        console.log('📦 Checking MISSIONS_DATA...');
+        if (typeof MISSIONS_DATA === 'undefined') {
+          throw new Error('MISSIONS_DATA not loaded! Check missions-config.js');
+        }
+        console.log('   ✓ MISSIONS_DATA loaded');
+        
+        console.log('\n📂 Getting mission data...');
+        
+        if (!MISSIONS_DATA.missions) {
+          throw new Error('MISSIONS_DATA structure invalid: "missions" key not found');
+        }
+        
+        console.log(`   Available missions: ${Object.keys(MISSIONS_DATA.missions).join(', ')}`);
+        
+        const missionConfig = MISSIONS_DATA.missions[missionId];
+        if (!missionConfig) {
+          throw new Error(`Mission ${missionId} not found`);
+        }
+        
+        console.log(`\n✓ Mission ${missionId} found:`, missionConfig.title);
+        
+        updateStatus('✓ Mission geladen');
+        
+        // Set page title
+        document.title = `Mission ${missionId} - ${missionConfig.title}`;
+        
+        // Calculate total phases
+        missionConfig.totalPhases = Object.keys(missionConfig.codes).length;
+        console.log(`   Total phases: ${missionConfig.totalPhases}`);
+        
+        updateStatus('Initialisiere Engine...');
+        
+        // Check if MissionEngine is loaded
+        console.log('\n🎮 Checking MissionEngine...');
+        if (typeof MissionEngine === 'undefined') {
+          throw new Error('MissionEngine class not found! Check mission-engine.js');
+        }
+        console.log('   ✓ MissionEngine loaded');
+        
+        console.log('🎮 Creating MissionEngine instance...');
+        window.currentEngine = new MissionEngine(missionConfig);
+        
+        console.log('   ✓ MissionEngine initialized');
+        
+        if (loading) loading.style.display = 'none';
+        
+        console.log('\n═══════════════════════════════════════');
+        console.log('✅ Mission erfolgreich geladen!');
+        console.log('═══════════════════════════════════════\n');
+      } catch (error) {
+        console.error('\n❌ CRITICAL ERROR:', error);
+        showError(`❌ FEHLER: ${error.message}`);
+      }
+    }
+
+    // Tastenkombination: Strg+Home zurück zum Menü
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key === 'Home') {
+        e.preventDefault();
+        backToMenu();
+      }
+    });
+
+    // Start on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('✓ DOMContentLoaded fired');
+      loadMission();
+    });
+    
+    // Fallback if script runs after DOMContentLoaded
+    if (document.readyState === 'interactive' || document.readyState === 'complete') {
+      console.log('⚠️  Document already loaded, running immediately');
+      setTimeout(loadMission, 100);
+    }
+  </script>
+</body>
+</html>

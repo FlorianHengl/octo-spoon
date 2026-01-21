@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Escape-Room Missionen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Courier New", Courier, "Lucida Console", monospace;
+        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+        color: #e0e0e0;
+        min-height: 100vh;
+        padding: 20px;
+        overflow-x: hidden;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 50px;
+        animation: fadeIn 0.8s ease-out;
+      }
+
+      .header h1 {
+        font-size: 3rem;
+        color: #ff4500;
+        text-shadow:
+          0 0 20px #ff4500,
+          0 0 40px #ff00c1;
+        letter-spacing: 4px;
+        font-family: "Orbitron", sans-serif;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        color: #ffb347;
+        text-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+      }
+
+      .missions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .mission-card {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a2a3a 100%);
+        border: 2px solid #ff4500;
+        border-radius: 10px;
+        padding: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 15px rgba(255, 69, 0, 0.3);
+        position: relative;
+        overflow: hidden;
+        animation: slideIn 0.6s ease-out forwards;
+      }
+
+      .mission-card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .mission-card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .mission-card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .mission-card:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+      .mission-card:nth-child(5) {
+        animation-delay: 0.5s;
+      }
+      .mission-card:nth-child(6) {
+        animation-delay: 0.6s;
+      }
+      .mission-card:nth-child(7) {
+        animation-delay: 0.7s;
+      }
+      .mission-card:nth-child(8) {
+        animation-delay: 0.8s;
+      }
+      .mission-card:nth-child(9) {
+        animation-delay: 0.9s;
+      }
+      .mission-card:nth-child(10) {
+        animation-delay: 1s;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .mission-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+        transform: rotate(45deg);
+        transition: all 0.6s;
+      }
+
+      .mission-card:hover::before {
+        animation: shine 0.6s;
+      }
+
+      @keyframes shine {
+        0% {
+          transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
+        100% {
+          transform: translateX(100%) translateY(100%) rotate(45deg);
+        }
+      }
+
+      .mission-card:hover {
+        border-color: #ffb347;
+        box-shadow:
+          0 0 30px rgba(255, 69, 0, 0.6),
+          inset 0 0 20px rgba(255, 69, 0, 0.2);
+        transform: translateY(-5px);
+      }
+
+      .mission-number {
+        display: inline-block;
+        background: #ff4500;
+        color: #000;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        line-height: 50px;
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
+        box-shadow: 0 0 15px #ff4500;
+      }
+
+      .mission-title {
+        font-size: 1.5rem;
+        color: #ffb347;
+        margin-bottom: 10px;
+        letter-spacing: 2px;
+      }
+
+      .mission-description {
+        font-size: 0.95rem;
+        color: #ccc;
+        line-height: 1.5;
+        margin-bottom: 15px;
+      }
+
+      .mission-button {
+        display: inline-block;
+        background: linear-gradient(135deg, #8b0000 0%, #ff4500 100%);
+        color: #fff;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: "Courier New", monospace;
+        font-weight: bold;
+        font-size: 0.95rem;
+        transition: all 0.3s;
+        box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+        width: 100%;
+        text-align: center;
+      }
+
+      .mission-button:hover {
+        background: linear-gradient(135deg, #ff4500 0%, #ffb347 100%);
+        box-shadow: 0 0 20px rgba(255, 69, 0, 0.8);
+        transform: scale(1.02);
+      }
+
+      .mission-button:active {
+        transform: scale(0.98);
+      }
+
+      .footer {
+        text-align: center;
+        margin-top: 60px;
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .footer a {
+        color: #ff4500;
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .footer a:hover {
+        color: #ffb347;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .missions-grid {
+          grid-template-columns: 1fr;
+          gap: 15px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .mission-title {
+          font-size: 1.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1 class="glitch">⚡ MISSIONEN ⚡</h1>
+      <p>Löse jede Mission und entfliehe!</p>
+    </div>
+
+    <div class="missions-grid" id="missionsGrid"></div>
+
+    <div class="footer">
+      <p>🔐 Escape-Room Challenge | Viel Erfolg! 🔐</p>
+    </div>
+
+    <script>
+      const missions = [
+        {
+          id: 0,
+          title: "Training",
+          description: "Einführung in die Mechanik",
+          difficulty: "★☆☆☆☆"
+        },
+        {
+          id: 1,
+          title: "Bahnhof",
+          description: "Das erste echte Abenteuer",
+          difficulty: "★★☆☆☆"
+        },
+        {
+          id: 2,
+          title: "Terminal",
+          description: "Technische Rätsel warten",
+          difficulty: "★★☆☆☆"
+        },
+        {
+          id: 3,
+          title: "Fahrstuhl",
+          description: "Es geht hoch hinaus",
+          difficulty: "★★★☆☆"
+        },
+        {
+          id: 4,
+          title: "Achterbahn",
+          description: "Ein wilder Ritt",
+          difficulty: "★★★☆☆"
+        },
+        {
+          id: 5,
+          title: "U-Bahn",
+          description: "Unter der Stadt",
+          difficulty: "★★★☆☆"
+        },
+        {
+          id: 6,
+          title: "Schiff",
+          description: "Auf hoher See",
+          difficulty: "★★★★☆"
+        },
+        {
+          id: 7,
+          title: "Gefängnis",
+          description: "Ausbruch ist gefragt",
+          difficulty: "★★★★☆"
+        },
+        {
+          id: 8,
+          title: "Bus",
+          description: "Fahrt ins Unbekannte",
+          difficulty: "★★★★☆"
+        },
+        {
+          id: 9,
+          title: "Bank",
+          description: "Der ultimative Heist",
+          difficulty: "★★★★★"
+        }
+      ];
+
+      const grid = document.getElementById("missionsGrid");
+
+      missions.forEach((mission) => {
+        const card = document.createElement("div");
+        card.className = "mission-card";
+        card.innerHTML = `
+        <div class="mission-number">${mission.id}</div>
+        <div class="mission-title">${mission.title}</div>
+        <div class="mission-description">${mission.description}</div>
+        <div style="margin-bottom: 10px; font-size: 0.9rem; color: #ff4500;">${mission.difficulty}</div>
+        <button class="mission-button" onclick="openMission(${mission.id})">
+          STARTEN →
+        </button>
+      `;
+        grid.appendChild(card);
+      });
+
+      function openMission(missionId) {
+        // Speichere die Mission-ID und öffne mission.html
+        localStorage.setItem("currentMissionId", missionId);
+        window.location.href = `mission.html?id=${missionId}`;
+      }
+
+      // Tastenkombination: Strg+Shift+Home zurück zur Startseite
+      document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && e.shiftKey && e.key === "Home") {
+          e.preventDefault();
+          window.focus();
+        }
+      });
+
+      // Tastenkombination: Strg+Shift+R - Alle Timer zurücksetzen
+      document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && e.shiftKey && (e.key === "R" || e.key === "r")) {
+          e.preventDefault();
+
+          // Alle Mission-StorageKeys löschen
+          const missions = [
+            "Mission_0_Training",
+            "Mission_1_Bahnhof",
+            "Mission_2_Terminal",
+            "Mission_3_Fahrstuhl",
+            "Mission_4_Achterbahn",
+            "Mission_5_U-Bahn",
+            "Mission_6_Schiff",
+            "Mission_7_Gefängnis",
+            "Mission_8_Bus",
+            "Mission_9_Bank"
+          ];
+
+          missions.forEach((key) => {
+            localStorage.removeItem(key);
+          });
+
+          console.log("✅ Alle Timer zurückgesetzt!");
+        }
+      });
+    </script>
+  </body>
+</html>
